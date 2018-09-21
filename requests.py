@@ -15,6 +15,7 @@ class Employees(Resource):
         query = conn.execute("select * from Employees")
         return {'employees': [i[0] for i in query.cursor.fetchall()]}
 
+
 class Tracks(Resource):
     def get(self):
         conn = db_connect.connect()
@@ -22,16 +23,25 @@ class Tracks(Resource):
         result = {'data': [dict(zip(tuple (query.keys()), i)) for i in query.cursor]}
         return jsonpify(result)
 
+class Composer_Tracks(Resource):
+    def get(self, composer):
+        conn = db_connect.connect()
+        query = conn.execute('''select * from tracks where composer = ?''', (composer,))
+        result = {'data': [dict(zip(tuple (query.keys()), i)) for i in query.cursor]}
+        return jsonpify(result)
+
 class Employees_Name(Resource):
     def get(self, employee_id):
         conn = db_connect.connect()
-        query = conn.execute("select * from employees where EmployeeId =%d" %int(employee_id))
+        query = conn.execute("select * from employees where EmployeeId = %d" %int(employee_id))
         result = {'data': [dict(zip(tuple (query.keys()), i)) for i in query.cursor]}
         return jsonpify(result)
 
 api.add_resource(Employees, '/employees')
-api.add_resource(Tracks, '/tracks')
 api.add_resource(Employees_Name, '/employees/<employee_id>')
+api.add_resource(Tracks, '/tracks')
+api.add_resource(Composer_Tracks, '/tracks/<composer>/')
+
 
 if __name__ == '__main__':
     app.run(port='5002')
